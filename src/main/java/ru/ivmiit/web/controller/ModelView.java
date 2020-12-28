@@ -51,6 +51,8 @@ public class ModelView extends BasicView {
 
                 ColumnDefinition.<Model, Criteria>builder().columnName("Название")
                         .getter(Model::getName)
+                        .sortable(true)
+                        .sortProperty("name")
                         .filter((fieldValue) -> Criteria.where("name").regex(fieldValue))
                         .bind((modelBinder) -> {
                             TextField nameField = new TextField();
@@ -67,13 +69,13 @@ public class ModelView extends BasicView {
                         .build(),
 
                 ColumnDefinition.<Model, Criteria>builder().columnName("Поля")
-                        .renderer(new TextRenderer<>(e -> Integer.toString(e.getModelColumnList().size())))
+                        .renderer(new TextRenderer<>(e -> e.getModelColumnList() == null ? "0" :Integer.toString(e.getModelColumnList().size())))
                         .getter(Model::getModelColumnList)
                         .bind((modelBinder) -> {
                             DialogGrid<ModelColumn> modelColumnDialogGrid = createModelColumnDialogGrid();
                             modelBinder.forField(modelColumnDialogGrid)
-                                    .withValidator(e -> e == null || e.size() != 0, "Объект должен содержать минимум 1 поле")
-                                    .bind(Model::getModelColumnList, Model::setModelColumnList);
+                                    .withValidator(e -> e != null && e.size() != 0, "Объект должен содержать минимум 1 поле")
+                                    .bind(e -> ModelColumn.duplicate(e.getModelColumnListAsArray()), Model::setModelColumnListFromArray);
                             return modelColumnDialogGrid;
                         })
                         .editable(true)
@@ -82,8 +84,8 @@ public class ModelView extends BasicView {
     }
 
     private DialogGrid<ModelColumn> createModelColumnDialogGrid() {
-        List<ColumnDefinition<ModelColumn,  Predicate<ModelColumn>>> columnDefinitions = Arrays.asList(
-                ColumnDefinition.<ModelColumn, Predicate<ModelColumn>>builder()
+        List<ColumnDefinition<ModelColumn,  Void>> columnDefinitions = Arrays.asList(
+                ColumnDefinition.<ModelColumn, Void>builder()
                         .columnName("Название поля")
                         .getter(ModelColumn::getColumnName)
                         .bind((modelBinder) -> {
@@ -97,7 +99,7 @@ public class ModelView extends BasicView {
                         .editable(true)
                         .build(),
 
-                ColumnDefinition.<ModelColumn, Predicate<ModelColumn>>builder()
+                ColumnDefinition.<ModelColumn, Void>builder()
                         .columnName("Тип поля")
                         .getter(ModelColumn::getColumnType)
                         .bind((modelBinder) -> {
@@ -113,12 +115,11 @@ public class ModelView extends BasicView {
                         .build()
         );
 
-        return new DialogGrid<ModelColumn>(columnDefinitions, ModelColumn::new);
+        return new DialogGrid<>(columnDefinitions, ModelColumn::new);
     }
 
     private void createGrid() {
         CrudGrid<Model, Criteria> grid = new CrudGrid<>(modelService, createColumns(),
-
                 new MongodbQuery());
         content.add(grid);
     }

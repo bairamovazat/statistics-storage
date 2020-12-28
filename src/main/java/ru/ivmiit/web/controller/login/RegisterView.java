@@ -19,6 +19,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.ivmiit.web.forms.UserRegistrationForm;
+import ru.ivmiit.web.model.Model;
 import ru.ivmiit.web.service.RegistrationService;
 
 import java.util.Optional;
@@ -51,12 +52,11 @@ public class RegisterView extends VerticalLayout {
         add(new H1("Регистрация"), div);
     }
 
-
     protected void fillRegisterForm(FormLayout formLayout) {
 
         //-----Логин-----//
         TextField login = new TextField();
-        login.setPlaceholder("login");
+        login.setPlaceholder("Login");
         login.setLabel("Логин");
         login.setTitle("Введите логин");
         formLayout.add(login);
@@ -64,7 +64,7 @@ public class RegisterView extends VerticalLayout {
 
         //-----Пароль-----//
         PasswordField password = new PasswordField();
-        password.setPlaceholder("password");
+        password.setPlaceholder("Password");
         password.setLabel("Пароль");
         password.setTitle("Введите пароль");
         formLayout.add(password);
@@ -85,11 +85,6 @@ public class RegisterView extends VerticalLayout {
         actions.add(saveButton);
 
         formLayout.add(actions);
-
-//        binder.forField(login)
-//                .withValidator(value -> login.getValue() != null && !login.getValue().trim().isEmpty(),
-//                        "Логин не может быть пустым")
-//                .bind(UserRegistrationForm::getLogin, UserRegistrationForm::setLogin);
 
         binder.forField(login)
                 .withValidator(e -> !registrationService.userIsPresent(login.getValue()), "Пользователь с таким логином уже существует")

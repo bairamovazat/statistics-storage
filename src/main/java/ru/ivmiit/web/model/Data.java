@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Document(collection = "Data")
 @Getter
@@ -23,6 +24,6 @@ public class Data {
     @DBRef
     private Model model;
 
-    public List<Column> columns;
+    public Map<String, Column> columns;
 }
 

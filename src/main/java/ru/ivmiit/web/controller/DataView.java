@@ -103,17 +103,13 @@ public class DataView extends BasicView {
         if (data.getColumns() == null) {
             return null;
         }
-        Object value = data.getColumns().stream()
-                .filter(c -> Objects.equals(c.getUniqueColumnId(), column.getUniqueColumnId()))
-                .findFirst()
-                .map(Column::getValue)
-                .orElse(null);
-        if (value == null) {
+        Column dataColumn = data.getColumns().getOrDefault(column.getUniqueColumnId(), null);
+        if (dataColumn == null) {
             return null;
         }
 
-        if (expectedClass.isInstance(value)) {
-            return (T) value;
+        if (expectedClass.isInstance(dataColumn.getValue())) {
+            return (T) dataColumn.getValue();
         } else {
             return null;
         }
@@ -121,30 +117,30 @@ public class DataView extends BasicView {
 
     private void setValue(Data data, ModelColumn modelColumn, Object value) {
         if (data.getColumns() == null) {
-            data.setColumns(new ArrayList<>());
+            data.setColumns(new HashMap<>());
         }
-        Column column = data.getColumns().stream()
-                .filter(c -> Objects.equals(c.getUniqueColumnId(), modelColumn.getUniqueColumnId()))
-                .findFirst()
-                .orElseGet(() -> {
-                    Column newColumn = Column.builder().uniqueColumnId(modelColumn.getUniqueColumnId()).build();
-                    data.getColumns().add(newColumn);
-                    return newColumn;
-                });
+        Column column = data.getColumns().get(modelColumn.getUniqueColumnId());
+        if (column == null) {
+            column = Column.builder().uniqueColumnId(modelColumn.getUniqueColumnId()).build();
+            data.getColumns().put(modelColumn.getUniqueColumnId(), column);
+        }
+
         column.setValue(value);
     }
 
     private List<ColumnDefinition<Data, Criteria>> createColumns(Model model) {
-        return model.getModelColumnList().stream().map(column -> ColumnDefinition.<Data, Criteria>builder().columnName(column.getColumnName())
-                .getter(e -> getValue(e, column, column.getColumnType().getJavaClass()))
-                .bind((modelBinder) -> bindColumn(column, modelBinder))
-                .filter(
-                        (fieldValue) -> Criteria.where("columns").elemMatch(
-                                Criteria.where("uniqueColumnId").is(column.getUniqueColumnId())
-                                        .and("value").regex(fieldValue))
-                )
-                .editable(true)
-                .build()).collect(Collectors.toList());
+        return model.getModelColumnList().entrySet().stream()
+                .map(entry -> ColumnDefinition.<Data, Criteria>builder()
+                        .columnName(entry.getValue().getColumnName())
+                        .getter(e -> getValue(e, entry.getValue(), entry.getValue().getColumnType().getJavaClass()))
+                        .bind((modelBinder) -> bindColumn(entry.getValue(), modelBinder))
+                        .sortable(true)
+                        .sortProperty("columns." + entry.getValue().getUniqueColumnId() + ".stringValue")
+                        .filter(
+                                (fieldValue) -> Criteria.where("columns." + entry.getValue().getUniqueColumnId() + ".stringValue").regex(fieldValue)
+                        )
+                        .editable(true)
+                        .build()).collect(Collectors.toList());
     }
 
 }

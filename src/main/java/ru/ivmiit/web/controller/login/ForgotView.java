@@ -24,20 +24,18 @@ import java.util.stream.Collectors;
 @PageTitle("Востановление пароля")
 public class ForgotView extends VerticalLayout {
 
-    Binder<ForgotForm> binder = new Binder<>();
+    private final Binder<ForgotForm> binder = new Binder<>();
 
-    FormLayout formLayout = new FormLayout();
-
-    ForgotForm forgotForm = new ForgotForm();
+    private final ForgotForm forgotForm = new ForgotForm();
 
     public ForgotView() {
-
         addClassName("login-view");
         setSizeFull();
 
         setJustifyContentMode(JustifyContentMode.CENTER);
         setAlignItems(Alignment.CENTER);
 
+        FormLayout formLayout = new FormLayout();
         fillForgotForm(formLayout);
         Div div = new Div();
         div.add(formLayout);
@@ -48,7 +46,7 @@ public class ForgotView extends VerticalLayout {
     protected void fillForgotForm(FormLayout formLayout) {
 
         TextField login = new TextField();
-        login.setPlaceholder("login");
+        login.setPlaceholder("Login");
         login.setLabel("Логин");
         login.setTitle("Введите логин для востановления");
 
@@ -62,20 +60,13 @@ public class ForgotView extends VerticalLayout {
 
         formLayout.add(actions);
 
-//        SerializablePredicate<String> loginPredicate = value -> login.getValue() != null
-//                && !login.getValue().trim().isEmpty();
-//
-//        binder.forField(login)
-//                .withValidator(loginPredicate, "Логин не может быть пустым")
-//                .bind(ForgotForm::getLogin, ForgotForm::setLogin);
-
         binder.forField(login)
                 .withValidator(new StringLengthValidator("Пожалуйста введите логин", 3, 255))
                 .bind(ForgotForm::getLogin, ForgotForm::setLogin);
 
         saveButton.addClickListener(event -> {
             if (binder.writeBeanIfValid(forgotForm)) {
-                new Notification("Success: " + forgotForm.toString(), 1000).open();
+                new Notification("Успешно: " + forgotForm.toString(), 5000).open();
             } else {
                 BinderValidationStatus<ForgotForm> validate = binder.validate();
                 String errorText = validate.getFieldValidationStatuses()
@@ -83,11 +74,8 @@ public class ForgotView extends VerticalLayout {
                         .map(BindingValidationStatus::getMessage)
                         .map(Optional::get).distinct()
                         .collect(Collectors.joining(", "));
-                new Notification("There are errors: " + errorText, 1000).open();
+                new Notification("Ошибки: " + errorText, 5000).open();
             }
         });
-//        reset.addClickListener(event -> {
-//            binder.readBean(null);
-//        });
     }
 }

@@ -6,8 +6,9 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Document(collection = "DataModel")
 @Getter
@@ -26,6 +27,16 @@ public class Model {
     @DBRef
     private User author;
 
-    private List<ModelColumn> modelColumnList = new ArrayList<>();
+    private Map<String, ModelColumn> modelColumnList;
+
+    public List<ModelColumn> getModelColumnListAsArray() {
+        return new ArrayList<>(modelColumnList.values());
+    }
+
+    public void setModelColumnListFromArray(List<ModelColumn> modelColumnList) {
+        Map<String, ModelColumn> newModelColumns = modelColumnList.stream()
+                .collect(Collectors.toMap(ModelColumn::getUniqueColumnId, e -> e));
+        this.modelColumnList = newModelColumns;
+    }
 
 }

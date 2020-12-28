@@ -3,6 +3,8 @@ package ru.ivmiit.web.utils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import ru.azat.vaadin.crud.api.Query;
 
+import java.util.List;
+
 public class CriteriaUtils {
 
     private CriteriaUtils() {
@@ -16,9 +18,13 @@ public class CriteriaUtils {
         if(query.getFilters().size() == 0) {
             return mongoDbQuery;
         }
-        Criteria mainCriteria = new Criteria();
-        mainCriteria.andOperator(query.getFilters().toArray(new Criteria[0]));
-        mongoDbQuery.addCriteria(mainCriteria);
+        mongoDbQuery.addCriteria(unionCriteria(query.getFilters()));
         return mongoDbQuery;
+    }
+
+    public static Criteria unionCriteria(List<Criteria> criteriaList) {
+        Criteria mainCriteria = new Criteria();
+        mainCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+        return mainCriteria;
     }
 }

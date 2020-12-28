@@ -4,6 +4,7 @@ package ru.ivmiit.web.config;
 import com.vaadin.flow.spring.SpringServlet;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
@@ -49,7 +50,7 @@ public class AppInitializer extends SpringBootServletInitializer implements WebA
     }
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory, MongoMappingContext context) {
+    public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MongoMappingContext context) {
 
         MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory), context);
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));

@@ -16,4 +16,15 @@ public class Column {
     private String uniqueColumnId;
 
     private Object value;
+
+    private String stringValue;
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.stringValue = value.toString();
+        this.value = value;
+    }
 }
