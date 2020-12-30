@@ -2,6 +2,7 @@ package ru.ivmiit.web.security;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.springframework.stereotype.Component;
@@ -26,13 +27,21 @@ public class ConfigureUIServiceInitListener implements VaadinServiceInitListener
     /**
      * Reroutes the user if they're not authorized to access the view.
      *
-     * @param event
-     *            before navigation event with event details
+     * @param event before navigation event with event details
      */
     private void beforeEnter(BeforeEnterEvent event) {
         if (Arrays.stream(UNAUTHORIZED_CLASS).noneMatch(e -> e.equals(event.getNavigationTarget()))
                 && !SecurityUtils.isUserLoggedIn()) {
             event.rerouteTo(LoginView.class);
         }
+
+        if(!SecurityUtils.isAccessGranted(event.getNavigationTarget())) { //
+            if(SecurityUtils.isUserLoggedIn()) { //
+                event.rerouteToError(NotFoundException.class); //
+            } else {
+                event.rerouteTo(LoginView.class); //
+            }
+        }
+
     }
 }

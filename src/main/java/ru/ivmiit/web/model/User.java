@@ -23,18 +23,12 @@ public class User {
     @Id
     private String id;
 
-    private String name;
-
-    private UUID uuid;
-
     @Indexed(unique = true)
     private String login;
 
     private String hashPassword;
 
     private List<Role> roles;
-
-    private State state;
 
     private String email;
 

@@ -13,33 +13,44 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.security.access.annotation.Secured;
 import ru.azat.vaadin.crud.common.BasicView;
 import ru.azat.vaadin.crud.common.ColumnDefinition;
 import ru.azat.vaadin.crud.common.CrudGrid;
 import ru.ivmiit.web.model.*;
 import ru.ivmiit.web.repository.MongodbQuery;
+import ru.ivmiit.web.security.details.Role;
+import ru.ivmiit.web.service.AuthenticationService;
 import ru.ivmiit.web.service.DataService;
 import ru.ivmiit.web.service.ModelService;
 import ru.ivmiit.web.utils.DateUtil;
+import ru.ivmiit.web.utils.LinkUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Route("model")
+@Route("data")
+@Secured("USER")
 public class DataView extends BasicView {
     private final Div content = new Div();
 
     private final ModelService modelService;
     private final DataService dataService;
+    private final AuthenticationService authenticationService;
 
     private CrudGrid<Data, Criteria> grid;
 
-    public DataView(@Autowired ModelService modelService, @Autowired DataService dataService) {
+    private User currentUser;
+
+    public DataView(@Autowired ModelService modelService, @Autowired DataService dataService,
+                    @Autowired AuthenticationService authenticationService) {
         this.modelService = modelService;
         this.dataService = dataService;
+        this.authenticationService = authenticationService;
 
-        addRouterLinkToDrawer(new RouterLink("Формы", ModelView.class));
-        addRouterLinkToDrawer(new RouterLink("Данные", DataView.class));
+        this.currentUser = authenticationService.getCurrentUser();
+
+        addRouterLinkToDrawer(LinkUtils.getRouterLinksToCurrentUser(currentUser));
 
         initSelectModel();
 
@@ -52,11 +63,11 @@ public class DataView extends BasicView {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setHeight("110px");
         Select<Model> valueSelect = new Select<>();
-        List<Model> modelList = modelService.getAllByCurrentUser();
+        List<Model> modelList = modelService.getAll();
         valueSelect.setItemLabelGenerator(Model::getName);
         valueSelect.setItems(modelList);
         valueSelect.addValueChangeListener(e -> modelChanged(e.getValue()));
-        verticalLayout.add(new Label("Выберите Форму для изменения"));
+        verticalLayout.add(new Label("Выберите Форму"));
         verticalLayout.add(valueSelect);
         content.add(verticalLayout);
     }
@@ -65,7 +76,13 @@ public class DataView extends BasicView {
         if (grid != null) {
             content.remove(grid);
         }
-        grid = new CrudGrid<>(dataService, createColumns(model), Arrays.asList(() -> Criteria.where("model").is(model)), new MongodbQuery());
+        grid = new CrudGrid<>(dataService,
+                createColumns(model),
+                Arrays.asList(() -> Criteria.where("model").is(model)),
+                new MongodbQuery(),
+                this.currentUser.getRoles().contains(Role.CREATOR)
+        );
+
         grid.setHeight("calc(100% - 110px)");
         grid.setBeforeSave(data -> data.setModel(model));
         content.add(grid);

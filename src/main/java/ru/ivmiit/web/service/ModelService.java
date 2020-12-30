@@ -14,5 +14,7 @@ public interface ModelService extends FilteringAndSortingCrudDao<Model, Criteria
 
     List<Model> getAllByCurrentUser();
 
+    List<Model> getAll();
+
     List<Model> getAllByAuthor(User user);
 }

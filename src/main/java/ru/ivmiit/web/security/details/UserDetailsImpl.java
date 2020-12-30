@@ -53,7 +53,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.user.getState().equals(State.CONFIRMED);
+        return true;
     }
 
     public User getUser() {

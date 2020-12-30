@@ -29,8 +29,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Value("${site.url}")
     private String siteUrl;
 
-    private String emailMessage = "Здравствуйте! Перейдите по ссылке, чтобы подтвердить аккаунт %s/confirm/%s";
-
     private ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     @Override
@@ -39,25 +37,14 @@ public class RegistrationServiceImpl implements RegistrationService {
         userRepository.findOneByLogin(userForm.getLogin()).ifPresent(s -> {
             throw new IllegalArgumentException("");
         });
-        UUID uuid = UUID.randomUUID();
         User newUser = User.builder()
                 .login(userForm.getLogin())
                 .hashPassword(passwordEncoder.encode(userForm.getPassword()))
-                .state(State.CREATED)
                 .email(userForm.getEmail())
-                .name(userForm.getName())
                 .roles(new ArrayList<>())
-                .uuid(uuid)
                 .build();
         newUser.getRoles().add(Role.USER);
 
-        executorService.execute(() -> {
-            try {
-                emailService.sendMail(String.format(emailMessage, siteUrl, uuid), "Подтверждение аккаунта", userForm.getEmail());
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        });
         userRepository.save(newUser);
     }
 

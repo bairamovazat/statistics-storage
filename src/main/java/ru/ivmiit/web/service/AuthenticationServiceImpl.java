@@ -4,13 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 import ru.ivmiit.web.model.User;
 import ru.ivmiit.web.repository.UserRepository;
 import ru.ivmiit.web.security.details.UserDetailsImpl;
-import ru.ivmiit.web.transfer.UserDto;
 
-import java.util.Optional;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -35,12 +32,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return userRepository.findById(currentUserId).orElse(null);
     }
 
-    @Override
-    public void putUserToModelIfExists(Authentication authentication, ModelMap model) {
-        if(authentication == null){
-            model.addAttribute("user", Optional.empty());
-            return;
-        }
-        model.addAttribute("user", Optional.of(UserDto.from(getUserByAuthentication(authentication))));
-    }
 }

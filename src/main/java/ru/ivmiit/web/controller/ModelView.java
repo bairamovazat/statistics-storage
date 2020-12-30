@@ -10,6 +10,7 @@ import com.vaadin.flow.router.RouterLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.access.annotation.Secured;
 import ru.azat.vaadin.crud.common.BasicView;
 import ru.azat.vaadin.crud.common.ColumnDefinition;
 import ru.azat.vaadin.crud.common.CrudGrid;
@@ -17,24 +18,38 @@ import ru.azat.vaadin.crud.common.DialogGrid;
 import ru.ivmiit.web.model.Model;
 import ru.ivmiit.web.model.ModelColumn;
 import ru.ivmiit.web.model.ModelColumnType;
+import ru.ivmiit.web.model.User;
 import ru.ivmiit.web.repository.MongodbQuery;
+import ru.ivmiit.web.security.details.Role;
+import ru.ivmiit.web.service.AuthenticationService;
 import ru.ivmiit.web.service.ModelService;
+import ru.ivmiit.web.utils.LinkUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
-@Route("data")
+@Route("model")
+@Secured("CREATOR")
 public class ModelView extends BasicView {
     private final VerticalLayout content = new VerticalLayout();
 
     private final ModelService modelService;
 
-    public ModelView(@Autowired ModelService modelService) {
-        addRouterLinkToDrawer(new RouterLink("Формы", ModelView.class));
-        addRouterLinkToDrawer(new RouterLink("Данные", DataView.class));
+    private final AuthenticationService authenticationService;
+
+    private User currentUser;
+
+
+    public ModelView(@Autowired ModelService modelService, @Autowired AuthenticationService authenticationService) {
+
         this.modelService = modelService;
+        this.authenticationService = authenticationService;
+
+        this.currentUser = authenticationService.getCurrentUser();
+
+        addRouterLinkToDrawer(LinkUtils.getRouterLinksToCurrentUser(currentUser));
+
         content.setWidth("100%");
         content.setHeight("100%");
         setContent(content);
@@ -120,7 +135,7 @@ public class ModelView extends BasicView {
 
     private void createGrid() {
         CrudGrid<Model, Criteria> grid = new CrudGrid<>(modelService, createColumns(),
-                new MongodbQuery());
+                new MongodbQuery(), this.currentUser.getRoles().contains(Role.CREATOR));
         content.add(grid);
     }
 

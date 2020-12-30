@@ -77,6 +77,12 @@ public class ModelServiceImpl implements ModelService {
     public List<Model> getAllByCurrentUser() {
         return modelRepository.getAllByAuthor(authenticationService.getCurrentUser());
     }
+
+    @Override
+    public List<Model> getAll() {
+        return modelRepository.findAll();
+    }
+
     @Override
     public List<Model> getAllByAuthor(User user) {
         return modelRepository.getAllByAuthor(user);
@@ -96,7 +102,7 @@ public class ModelServiceImpl implements ModelService {
     public Stream<Model> load(int offset, int limit) {
         org.springframework.data.mongodb.core.query.Query mongoDbQuery = new org.springframework.data.mongodb.core.query.Query();
         mongoDbQuery.skip(offset);
-        mongoDbQuery.limit(offset);
+        mongoDbQuery.limit(limit);
         return mongoTemplate.find(mongoDbQuery, Model.class).stream();
     }
 
