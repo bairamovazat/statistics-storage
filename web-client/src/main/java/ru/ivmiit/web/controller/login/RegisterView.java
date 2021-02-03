@@ -19,7 +19,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.ivmiit.web.forms.UserRegistrationForm;
-import ru.ivmiit.web.model.Model;
 import ru.ivmiit.web.service.RegistrationService;
 
 import java.util.Optional;

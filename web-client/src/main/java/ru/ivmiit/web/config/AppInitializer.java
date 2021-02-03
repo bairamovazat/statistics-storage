@@ -3,6 +3,7 @@ package ru.ivmiit.web.config;
 
 import com.vaadin.flow.spring.SpringServlet;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoDbFactory;
@@ -29,6 +30,7 @@ import javax.servlet.ServletRegistration;
 @SpringBootApplication(exclude = ErrorMvcAutoConfiguration.class)
 @ComponentScan("ru.ivmiit.web")
 @Slf4j
+@EnableFeignClients(basePackages = "ru.ivmiit.web")
 @Import({AppConfiguration.class, SecurityConfig.class})
 public class AppInitializer extends SpringBootServletInitializer implements WebApplicationInitializer {
 

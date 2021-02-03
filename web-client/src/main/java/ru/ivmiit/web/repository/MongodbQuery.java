@@ -26,6 +26,11 @@ public class MongodbQuery implements Query<Criteria> {
     }
 
     @Override
+    public void removeFilter(Criteria criteria) {
+        criteriaList.remove(criteria);
+    }
+
+    @Override
     public List<Criteria> getFilters() {
         return criteriaList;
     }
