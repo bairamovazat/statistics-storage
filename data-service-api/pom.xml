@@ -10,11 +10,32 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>data-service-api</artifactId>
+    <packaging>${packaging.type}</packaging>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
     </properties>
+
+
+    <profiles>
+        <profile>
+            <id>war</id>
+            <properties>
+                <packaging.type>war</packaging.type>
+            </properties>
+        </profile>
+
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>jar</id>
+            <properties>
+                <packaging.type>jar</packaging.type>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -23,6 +44,5 @@
             <version>5.2.10.RELEASE</version>
         </dependency>
     </dependencies>
-
 
 </project>

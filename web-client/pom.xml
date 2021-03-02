@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>web-client</artifactId>
+    <packaging>${packaging.type}</packaging>
 
     <properties>
         <start-class>ru.ivmiit.web.config.AppInitializer</start-class>
