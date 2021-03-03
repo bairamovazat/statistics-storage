@@ -24,9 +24,6 @@ public class Model {
 
     private String name;
 
-    @DBRef
-    private User author;
-
     private Map<String, ModelColumn> modelColumnList;
 
     public List<ModelColumn> getModelColumnListAsArray() {

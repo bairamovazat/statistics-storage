@@ -10,7 +10,6 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.access.annotation.Secured;
@@ -19,14 +18,13 @@ import ru.azat.vaadin.crud.common.ColumnDefinition;
 import ru.azat.vaadin.crud.common.CrudGrid;
 import ru.ivmiit.web.model.*;
 import ru.ivmiit.web.repository.MongodbQuery;
-import ru.ivmiit.web.security.details.Role;
-import ru.ivmiit.web.service.AuthenticationService;
 import ru.ivmiit.web.service.DataService;
 import ru.ivmiit.web.service.ModelService;
 import ru.ivmiit.web.utils.DateUtil;
 import ru.ivmiit.web.utils.LinkUtils;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Route("data")
@@ -36,21 +34,16 @@ public class DataView extends BasicView {
 
     private final ModelService modelService;
     private final DataService dataService;
-    private final AuthenticationService authenticationService;
 
     private CrudGrid<Data, Criteria> grid;
 
-    private User currentUser;
 
-    public DataView(@Autowired ModelService modelService, @Autowired DataService dataService,
-                    @Autowired AuthenticationService authenticationService) {
+    public DataView(@Autowired ModelService modelService, @Autowired DataService dataService) {
         this.modelService = modelService;
         this.dataService = dataService;
-        this.authenticationService = authenticationService;
 
-        this.currentUser = authenticationService.getCurrentUser();
 
-        addRouterLinkToDrawer(LinkUtils.getRouterLinksToCurrentUser(currentUser));
+        addRouterLinkToDrawer(LinkUtils.getRouterLinks());
 
         initSelectModel();
 
@@ -76,11 +69,13 @@ public class DataView extends BasicView {
         if (grid != null) {
             content.remove(grid);
         }
+        ArrayList<Supplier<Criteria>> arrayList = new ArrayList<>();
+        arrayList.add(() -> Criteria.where("model").is(model));
         grid = new CrudGrid<>(dataService,
                 createColumns(model),
-                Arrays.asList(() -> Criteria.where("model").is(model)),
+                arrayList,
                 new MongodbQuery(),
-                this.currentUser.getRoles().contains(Role.CREATOR)
+                true
         );
 
         grid.setHeight("calc(100% - 110px)");

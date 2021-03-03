@@ -6,10 +6,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.access.annotation.Secured;
 import ru.azat.vaadin.crud.common.BasicView;
 import ru.azat.vaadin.crud.common.ColumnDefinition;
@@ -18,10 +16,7 @@ import ru.azat.vaadin.crud.common.DialogGrid;
 import ru.ivmiit.web.model.Model;
 import ru.ivmiit.web.model.ModelColumn;
 import ru.ivmiit.web.model.ModelColumnType;
-import ru.ivmiit.web.model.User;
 import ru.ivmiit.web.repository.MongodbQuery;
-import ru.ivmiit.web.security.details.Role;
-import ru.ivmiit.web.service.AuthenticationService;
 import ru.ivmiit.web.service.ModelService;
 import ru.ivmiit.web.utils.LinkUtils;
 
@@ -36,19 +31,13 @@ public class ModelView extends BasicView {
 
     private final ModelService modelService;
 
-    private final AuthenticationService authenticationService;
-
-    private User currentUser;
 
 
-    public ModelView(@Autowired ModelService modelService, @Autowired AuthenticationService authenticationService) {
+    public ModelView(@Autowired ModelService modelService) {
 
         this.modelService = modelService;
-        this.authenticationService = authenticationService;
 
-        this.currentUser = authenticationService.getCurrentUser();
-
-        addRouterLinkToDrawer(LinkUtils.getRouterLinksToCurrentUser(currentUser));
+        addRouterLinkToDrawer(LinkUtils.getRouterLinks());
 
         content.setWidth("100%");
         content.setHeight("100%");
@@ -79,9 +68,9 @@ public class ModelView extends BasicView {
                         .editable(true)
                         .build(),
 
-                ColumnDefinition.<Model, Criteria>builder().columnName("Автор")
-                        .getter(e -> e.getAuthor() == null ? null : e.getAuthor().getLogin())
-                        .build(),
+//                ColumnDefinition.<Model, Criteria>builder().columnName("Автор")
+//                        .getter(e -> e.getAuthor() == null ? null : e.getAuthor().getLogin())
+//                        .build(),
 
                 ColumnDefinition.<Model, Criteria>builder().columnName("Поля")
                         .renderer(new TextRenderer<>(e -> e.getModelColumnList() == null ? "0" :Integer.toString(e.getModelColumnList().size())))
@@ -135,7 +124,7 @@ public class ModelView extends BasicView {
 
     private void createGrid() {
         CrudGrid<Model, Criteria> grid = new CrudGrid<>(modelService, createColumns(),
-                new MongodbQuery(), this.currentUser.getRoles().contains(Role.CREATOR));
+                new MongodbQuery(), true);
         content.add(grid);
     }
 
