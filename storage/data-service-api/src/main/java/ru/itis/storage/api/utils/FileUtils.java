@@ -1,4 +1,4 @@
-package ru.ivmiit.web.utils;
+package ru.itis.storage.api.utils;
 
 import java.io.File;
 import java.io.IOException;

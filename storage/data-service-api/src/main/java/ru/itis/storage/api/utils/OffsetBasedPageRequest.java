@@ -1,14 +1,12 @@
-package ru.ivmiit.web.utils;
+package ru.itis.storage.api.utils;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.data.domain.AbstractPageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  * Created by Ergin

@@ -1,4 +1,4 @@
-package ru.ivmiit.web.repository;
+package ru.itis.storage.api;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 import ru.azat.vaadin.crud.api.Query;
@@ -6,7 +6,7 @@ import ru.azat.vaadin.crud.api.Query;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MongodbQuery implements Query<Criteria> {
+public class MongodbQuery extends Query<Criteria> {
 
     private List<Criteria> criteriaList = new ArrayList<>();
 

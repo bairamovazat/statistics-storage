@@ -1,5 +1,6 @@
 package ru.azat.vaadin.crud.api;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -8,7 +9,7 @@ import java.util.stream.Stream;
  */
 public interface CrudDao<T> {
 
-    Stream<T> load(int offset, int limit);
+    List<T> load(int offset, int limit);
     /**
      * @return создаёт новый пустой элемент, который ещё не сохранён в базе даннх
      */
@@ -20,7 +21,7 @@ public interface CrudDao<T> {
 
     void delete(T element);
 
-    Stream<T> readAll();
+    List<T> readAll();
 
     int count();
 }

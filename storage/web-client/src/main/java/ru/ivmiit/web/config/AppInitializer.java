@@ -50,19 +50,6 @@ public class AppInitializer extends SpringBootServletInitializer implements WebA
         return configureApplication(builder);
     }
 
-    @Bean
-    public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MongoMappingContext context) {
-
-        MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory), context);
-        converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-
-        //CALL THIS MANULLY, so that all the default convertors will be registered!
-        converter.afterPropertiesSet();
-
-        MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory, converter);
-
-        return mongoTemplate;
-    }
 
     @Override
     public void onStartup(ServletContext servletContext) {

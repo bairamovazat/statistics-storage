@@ -11,37 +11,40 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.access.annotation.Secured;
+import ru.azat.vaadin.crud.LoadMultipleObject;
+import ru.azat.vaadin.crud.api.Query;
 import ru.azat.vaadin.crud.common.BasicView;
 import ru.azat.vaadin.crud.common.ColumnDefinition;
 import ru.azat.vaadin.crud.common.CrudGrid;
-import ru.ivmiit.web.model.*;
-import ru.ivmiit.web.repository.MongodbQuery;
-import ru.ivmiit.web.service.DataService;
-import ru.ivmiit.web.service.ModelService;
-import ru.ivmiit.web.utils.DateUtil;
+import ru.itis.storage.api.DataService;
+import ru.itis.storage.api.MongodbQuery;
+import ru.itis.storage.api.model.*;
+import ru.itis.storage.api.utils.DateUtil;
+import ru.ivmiit.web.client.MainClientImpl;
 import ru.ivmiit.web.utils.LinkUtils;
 
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Route("data")
 @Secured("USER")
+@EnableFeignClients
 public class DataView extends BasicView {
     private final Div content = new Div();
 
-    private final ModelService modelService;
-    private final DataService dataService;
+
+    private final MainClientImpl mainClient;
 
     private CrudGrid<Data, Criteria> grid;
 
 
-    public DataView(@Autowired ModelService modelService, @Autowired DataService dataService) {
-        this.modelService = modelService;
-        this.dataService = dataService;
-
+    public DataView(@Autowired MainClientImpl mainClient, @Autowired MainClientImpl dataService) {
+        this.mainClient = mainClient;
 
         addRouterLinkToDrawer(LinkUtils.getRouterLinks());
 
@@ -56,7 +59,7 @@ public class DataView extends BasicView {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setHeight("110px");
         Select<Model> valueSelect = new Select<>();
-        List<Model> modelList = modelService.getAll();
+        List<Model> modelList = mainClient.getAllModel();
         valueSelect.setItemLabelGenerator(Model::getName);
         valueSelect.setItems(modelList);
         valueSelect.addValueChangeListener(e -> modelChanged(e.getValue()));
@@ -71,7 +74,7 @@ public class DataView extends BasicView {
         }
         ArrayList<Supplier<Criteria>> arrayList = new ArrayList<>();
         arrayList.add(() -> Criteria.where("model").is(model));
-        grid = new CrudGrid<>(dataService,
+        grid = new CrudGrid<>(getDataService(),
                 createColumns(model),
                 arrayList,
                 new MongodbQuery(),
@@ -153,6 +156,55 @@ public class DataView extends BasicView {
                         )
                         .editable(true)
                         .build()).collect(Collectors.toList());
+    }
+
+    private DataService getDataService() {
+        return new DataService() {
+            @Override
+            public Data createNew() {
+                return mainClient.createNew();
+            }
+
+            @Override
+            public Data create(Data element) {
+                return mainClient.create(element);
+            }
+
+            @Override
+            public Data update(Data element) {
+                return mainClient.update(element);
+            }
+
+            @Override
+            public void delete(Data element) {
+                mainClient.delete(element);
+            }
+
+            @Override
+            public List<Data> readAll() {
+                return mainClient.readAll();
+            }
+
+            @Override
+            public int count() {
+                return mainClient.count();
+            }
+
+            @Override
+            public int count(Optional<Query<Criteria>> query) {
+                return mainClient.count(query);
+            }
+
+            @Override
+            public List<Data> load(int offset, int limit) {
+                return mainClient.load(offset, limit);
+            }
+
+            @Override
+            public List<Data> load(int offset, int limit, LoadMultipleObject<Criteria> loadMultipleObject) {
+                return mainClient.load(offset, limit, loadMultipleObject);
+            }
+        };
     }
 
 }

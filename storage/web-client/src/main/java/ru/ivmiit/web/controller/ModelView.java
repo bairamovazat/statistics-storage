@@ -3,39 +3,45 @@ package ru.ivmiit.web.controller;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.access.annotation.Secured;
+import ru.azat.vaadin.crud.LoadMultipleObject;
+import ru.azat.vaadin.crud.api.Query;
 import ru.azat.vaadin.crud.common.BasicView;
 import ru.azat.vaadin.crud.common.ColumnDefinition;
 import ru.azat.vaadin.crud.common.CrudGrid;
 import ru.azat.vaadin.crud.common.DialogGrid;
-import ru.ivmiit.web.model.Model;
-import ru.ivmiit.web.model.ModelColumn;
-import ru.ivmiit.web.model.ModelColumnType;
-import ru.ivmiit.web.repository.MongodbQuery;
-import ru.ivmiit.web.service.ModelService;
+import ru.itis.storage.api.ModelService;
+import ru.itis.storage.api.MongodbQuery;
+import ru.itis.storage.api.model.Model;
+import ru.itis.storage.api.model.ModelColumn;
+import ru.itis.storage.api.model.ModelColumnType;
+import ru.ivmiit.web.client.MainClientImpl;
 import ru.ivmiit.web.utils.LinkUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Route("model")
 @Secured("CREATOR")
+@EnableFeignClients
 public class ModelView extends BasicView {
     private final VerticalLayout content = new VerticalLayout();
 
-    private final ModelService modelService;
+    private final MainClientImpl mainClient;
 
+    public ModelView(@Autowired MainClientImpl mainClient) {
 
-
-    public ModelView(@Autowired ModelService modelService) {
-
-        this.modelService = modelService;
+        this.mainClient = mainClient;
 
         addRouterLinkToDrawer(LinkUtils.getRouterLinks());
 
@@ -123,9 +129,63 @@ public class ModelView extends BasicView {
     }
 
     private void createGrid() {
-        CrudGrid<Model, Criteria> grid = new CrudGrid<>(modelService, createColumns(),
+        CrudGrid<Model, Criteria> grid = new CrudGrid<>(getModelService(), createColumns(),
                 new MongodbQuery(), true);
         content.add(grid);
+    }
+
+    private ModelService getModelService() {
+        return new ModelService() {
+            @Override
+            public List<Model> getAll() {
+                return mainClient.getAllModel();
+            }
+
+            @Override
+            public Model createNew() {
+                return mainClient.createNewModel();
+            }
+
+            @Override
+            public Model create(Model element) {
+                return mainClient.createModel(element);
+            }
+
+            @Override
+            public Model update(Model element) {
+                return mainClient.updateModel(element);
+            }
+
+            @Override
+            public void delete(Model element) {
+                mainClient.deleteModel(element);
+            }
+
+            @Override
+            public List<Model> readAll() {
+                return mainClient.readAllModel();
+            }
+
+            @Override
+            public int count() {
+                return mainClient.countModel();
+            }
+
+            @Override
+            public int count(Optional<Query<Criteria>> query) {
+                return mainClient.countModel(query);
+            }
+
+            @Override
+            public List<Model> load(int offset, int limit) {
+                return mainClient.loadModel(offset, limit);
+            }
+
+            @Override
+            public List<Model> load(int offset, int limit, LoadMultipleObject<Criteria> loadMultipleObject) {
+                return mainClient.loadModel(offset, limit, loadMultipleObject);
+            }
+        };
     }
 
 }

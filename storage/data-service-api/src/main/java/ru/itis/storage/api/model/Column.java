@@ -1,4 +1,4 @@
-package ru.ivmiit.web.model;
+package ru.itis.storage.api.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;

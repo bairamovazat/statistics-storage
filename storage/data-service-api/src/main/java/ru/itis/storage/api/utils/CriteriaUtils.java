@@ -1,4 +1,4 @@
-package ru.ivmiit.web.utils;
+package ru.itis.storage.api.utils;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 import ru.azat.vaadin.crud.api.Query;

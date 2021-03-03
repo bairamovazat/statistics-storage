@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class VoidQuery<T> implements Query<Void> {
+public class VoidQuery<T> extends Query<Void> {
 
     @Override
     public void addFilter(List<Void> filters) {

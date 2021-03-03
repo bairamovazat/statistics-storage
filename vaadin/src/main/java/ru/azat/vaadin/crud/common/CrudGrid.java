@@ -15,6 +15,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Getter;
 import lombok.Setter;
+import ru.azat.vaadin.crud.LoadMultipleObject;
 import ru.azat.vaadin.crud.api.CrudDao;
 import ru.azat.vaadin.crud.api.FilteringAndSortingCrudDao;
 import ru.azat.vaadin.crud.api.Query;
@@ -112,7 +113,10 @@ public class CrudGrid<T, F> extends Div {
         this.crudDao = crudDao;
         if (crudDao instanceof FilteringAndSortingCrudDao) {
             CallbackDataProvider<T, Query<F>> provider = DataProvider.fromFilteringCallbacks(
-                    (q) -> ((FilteringAndSortingCrudDao<T, F, Query<F>>) crudDao).load(q.getOffset(), q.getLimit(), q.getFilter(), q.getSortOrders()),
+                    (q) -> ((FilteringAndSortingCrudDao<T, F, Query<F>>) crudDao)
+                            .load(q.getOffset(), q.getLimit(), LoadMultipleObject.<F>builder().query(q.getFilter())
+                                    .querySortOrders(q.getSortOrders())
+                                    .build()).stream(),
                     q -> ((FilteringAndSortingCrudDao<T, F, Query<F>>) crudDao).count(q.getFilter())
             );
             filterDataProvider = provider.withConfigurableFilter();
@@ -120,7 +124,7 @@ public class CrudGrid<T, F> extends Div {
             grid.setItems(filterDataProvider);
         } else {
             CallbackDataProvider<T, Void> provider = DataProvider.fromCallbacks(
-                    (q) -> crudDao.load(q.getOffset(), q.getLimit()),
+                    (q) -> crudDao.load(q.getOffset(), q.getLimit()).stream(),
                     q -> crudDao.count()
             );
             grid.setItems(provider);

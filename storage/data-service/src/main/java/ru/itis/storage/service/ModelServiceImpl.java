@@ -1,4 +1,4 @@
-package ru.ivmiit.web.service;
+package ru.itis.storage.service;
 
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
@@ -6,14 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+import ru.azat.vaadin.crud.LoadMultipleObject;
 import ru.azat.vaadin.crud.api.Query;
-import ru.ivmiit.web.model.Data;
-import ru.ivmiit.web.model.Model;
-import ru.ivmiit.web.repository.DataRepository;
-import ru.ivmiit.web.repository.ModelRepository;
-import ru.ivmiit.web.utils.CriteriaUtils;
-import ru.ivmiit.web.utils.DataUtil;
+import ru.itis.storage.api.ModelService;
+import ru.itis.storage.api.model.Data;
+import ru.itis.storage.api.model.Model;
+import ru.itis.storage.repository.DataRepository;
+import ru.itis.storage.repository.ModelRepository;
+import ru.itis.storage.api.utils.CriteriaUtils;
+import ru.itis.storage.api.utils.DataUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Service
+@RestController
+@RequestMapping("/model")
 public class ModelServiceImpl implements ModelService {
 
     @Autowired
@@ -34,17 +37,20 @@ public class ModelServiceImpl implements ModelService {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public Model createNew() {
+    @GetMapping("/createNew")
+    public Model createNew(){
         return Model.builder().modelColumnList(new HashMap<>()).build();
     }
 
     @Override
-    public Model create(Model element) {
+    @PostMapping("/create")
+    public Model create(@RequestBody Model element) {
         return update(element);
     }
 
     @Override
-    public Model update(Model element) {
+    @PutMapping("/update")
+    public Model update(@RequestBody Model element) {
         return modelRepository.save(element);
     }
 
@@ -58,42 +64,52 @@ public class ModelServiceImpl implements ModelService {
 
 
     @Override
-    public void delete(Model element) {
+    @DeleteMapping("/delete")
+    public void delete(@RequestBody Model element) {
         mongoTemplate.remove(element.getModelColumnList());
         modelRepository.delete(element);
     }
 
     @Override
-    public Stream<Model> readAll() {
-        return modelRepository.findAll().stream();
+    @GetMapping("/readAll")
+    public List<Model> readAll() {
+        return modelRepository.findAll();
     }
 
 
-    @Override
+    @GetMapping("/getAll")
     public List<Model> getAll() {
         return modelRepository.findAll();
     }
 
     @Override
+    @GetMapping("/count")
     public int count() {
         return (int) modelRepository.count();
     }
 
     @Override
-    public int count(Optional<ru.azat.vaadin.crud.api.Query<Criteria>> query) {
+    @PostMapping("/count/criteria")
+    public int count(@RequestBody Optional<ru.azat.vaadin.crud.api.Query<Criteria>> query) {
         return query.map(q -> (int) mongoTemplate.count(CriteriaUtils.getMongoDbQuery(q), Model.class)).orElseGet(this::count);
     }
 
     @Override
-    public Stream<Model> load(int offset, int limit) {
+    @GetMapping("/load")
+    public List<Model> load(@RequestParam("offset") int offset, @RequestParam("limit") int limit) {
         org.springframework.data.mongodb.core.query.Query mongoDbQuery = new org.springframework.data.mongodb.core.query.Query();
         mongoDbQuery.skip(offset);
         mongoDbQuery.limit(limit);
-        return mongoTemplate.find(mongoDbQuery, Model.class).stream();
+        return mongoTemplate.find(mongoDbQuery, Model.class);
     }
 
+
     @Override
-    public Stream<Model> load(int offset, int limit, Optional<Query<Criteria>> query, List<QuerySortOrder> querySortOrders) {
+    @PostMapping("/load/criteria")
+    public List<Model> load(@RequestParam("offset") int offset, @RequestParam("limit") int limit,
+                              @RequestBody LoadMultipleObject<Criteria> loadMultipleObject) {
+        Optional<Query<Criteria>> query = loadMultipleObject.getQuery();
+        List<QuerySortOrder> querySortOrders = loadMultipleObject.getQuerySortOrders();
         if (!query.isPresent()) {
             return load(offset, limit);
         }
@@ -105,7 +121,7 @@ public class ModelServiceImpl implements ModelService {
                 sort.getDirection() == SortDirection.ASCENDING ? Sort.Direction.ASC : Sort.Direction.DESC,
                 sort.getSorted()
         )));
-        return mongoTemplate.find(mongoDbQuery, Model.class).stream();
+        return mongoTemplate.find(mongoDbQuery, Model.class);
     }
 
 }

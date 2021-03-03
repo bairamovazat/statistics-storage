@@ -3,6 +3,7 @@ package ru.azat.vaadin.crud.api.impl;
 import ru.azat.vaadin.crud.api.CrudDao;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class InMemoryCrudDao<T> implements CrudDao<T> {
@@ -32,8 +33,8 @@ public abstract class InMemoryCrudDao<T> implements CrudDao<T> {
     }
 
     @Override
-    public Stream<T> readAll() {
-        return storage.stream();
+    public List<T> readAll() {
+        return storage;
     }
 
     public List<T> getAll() {
@@ -51,7 +52,7 @@ public abstract class InMemoryCrudDao<T> implements CrudDao<T> {
     }
 
     @Override
-    public Stream<T> load(int offset, int limit) {
-        return storage.stream().skip(offset).limit(limit);
+    public List<T> load(int offset, int limit) {
+        return storage.stream().skip(offset).limit(limit).collect(Collectors.toList());
     }
 }

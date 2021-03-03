@@ -1,9 +1,9 @@
-package ru.ivmiit.web.utils;
+package ru.itis.storage.api.utils;
 
-import ru.ivmiit.web.model.Column;
-import ru.ivmiit.web.model.Data;
-import ru.ivmiit.web.model.Model;
-import ru.ivmiit.web.model.ModelColumn;
+import ru.itis.storage.api.model.Column;
+import ru.itis.storage.api.model.Data;
+import ru.itis.storage.api.model.Model;
+import ru.itis.storage.api.model.ModelColumn;
 
 import java.util.Date;
 import java.util.HashMap;

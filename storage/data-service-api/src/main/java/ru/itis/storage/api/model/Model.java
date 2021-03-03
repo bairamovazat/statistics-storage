@@ -1,4 +1,4 @@
-package ru.ivmiit.web.model;
+package ru.itis.storage.api.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Document(collection = "DataModel")

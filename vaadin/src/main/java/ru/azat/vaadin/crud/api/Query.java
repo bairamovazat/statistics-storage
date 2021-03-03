@@ -1,5 +1,6 @@
 package ru.azat.vaadin.crud.api;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -7,15 +8,30 @@ import java.util.function.Predicate;
 /**
  * @param <F> - Тип фильтра
  */
-public interface Query<F> {
+public class Query<F> {
 
-    void addFilter(List<F> filters);
+    private List<F> filters = new ArrayList<>();
 
-    void addFilter(F filter);
+    public Query() {
+    }
 
-    void clearFilters();
+    public void addFilter(List<F> filters) {
+        filters.addAll(filters);
+    };
 
-    void removeFilter(F filter);
+    public void addFilter(F filter) {
+        filters.add(filter);
+    };
 
-    List<F> getFilters();
+    public void clearFilters() {
+        filters.clear();
+    };
+
+    public void removeFilter(F filter) {
+        filters.remove(filter);
+    };
+
+    public List<F> getFilters() {
+        return filters;
+    };
 }
